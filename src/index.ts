@@ -1,12 +1,14 @@
 import Phaser from "phaser";
+import { WIDTH, HEIGHT, Colors } from "./constants";
 import PlayScene from "./PlayScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
-  backgroundColor: 0x5691f0,
+  width: WIDTH,
+  height: HEIGHT,
+  backgroundColor: Colors.c,
   physics: {
+    default: 'arcade',
   },
   scene: [PlayScene]
 };
