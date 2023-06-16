@@ -43,10 +43,25 @@ class Ball {
   resetPos(): void {
     this.updatePos(this.startX, this.startY);
   }
+
+  getNumber(): number {
+    return this.num;
+  }
+
+  getWeight(): number {
+    return this.weight;
+  }
+
+  getSize(): number {
+    return this.radius;
+  }
 }
 
 class PlayScene extends Phaser.Scene {
   private balls: Ball[] = [];
+
+  private leftBalls: Ball[] = [];
+  private rightBalls: Ball[] = [];
 
   private line: Phaser.GameObjects.Line;
   private dropArea1: Phaser.GameObjects.Rectangle;
@@ -166,11 +181,17 @@ class PlayScene extends Phaser.Scene {
     this.input.on('dragend', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
       const ball = obj.getData('ball') as Ball | undefined;
       if (ball) {
+        this.rightBalls = this.rightBalls.filter(el => el.getNumber() !== ball.getNumber());
+        this.leftBalls = this.leftBalls.filter(el => el.getNumber() !== ball.getNumber());
         if (this.dropArea1.getBounds().contains(pointer.x, pointer.y)) {
+          this.leftBalls.push(ball);
         } else if (this.dropArea2.getBounds().contains(pointer.x, pointer.y)) {
+          this.rightBalls.push(ball);
         } else {
           ball.resetPos();
         }
+
+        this.repositionBalls();
       }
 
       this.dropArea1.setVisible(false);
@@ -183,6 +204,24 @@ class PlayScene extends Phaser.Scene {
 
     this.btnReset.on('pointerup', () => {
       console.log('TODO: Implement reset');
+    });
+  }
+
+  repositionBalls(): void {
+    let bounds = this.dropArea1.getBounds();
+
+    this.leftBalls.forEach((ball, idx) => {
+      const x = bounds.left + ball.getSize() + idx * ball.getSize() * 2;
+      const y = bounds.bottom - ball.getSize();
+      ball.updatePos(x, y);
+    });
+
+
+    bounds = this.dropArea2.getBounds();
+    this.rightBalls.forEach((ball, idx) => {
+      const x = bounds.right - ball.getSize() - idx * ball.getSize() * 2;
+      const y = bounds.bottom - ball.getSize();
+      ball.updatePos(x, y);
     });
   }
 
