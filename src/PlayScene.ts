@@ -67,7 +67,7 @@ class PlayScene extends Phaser.Scene {
 
   createScale(): void {
     const screenCenter = [WIDTH / 2, HEIGHT / 2];
-    const size = 15;
+    const size = 20;
 
     this.add.triangle(
       screenCenter[0], screenCenter[1],
@@ -75,20 +75,20 @@ class PlayScene extends Phaser.Scene {
       -size, 2 * size,
       size, 2 * size,
       Colors.b,
-    ).setOrigin(0.5, 0);
+    ).setOrigin(0, 0);
 
     this.line = this.add.line(
       screenCenter[0], screenCenter[1],
-      -size, 0,
+      0, 0,
       size * 40, 0,
       Colors.b,
     );
 
-    this.dropArea1 = this.add.rectangle(screenCenter[0] - 23, screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
+    this.dropArea1 = this.add.rectangle(screenCenter[0], screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
       .setOrigin(1)
       .setVisible(false);
 
-    this.dropArea2 = this.add.rectangle(screenCenter[0] - 7, screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
+    this.dropArea2 = this.add.rectangle(screenCenter[0], screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
       .setOrigin(0, 1)
       .setVisible(false);
   }

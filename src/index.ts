@@ -10,7 +10,7 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
   },
-  scene: [PlayScene]
+  scene: [PlayScene],
 };
 
 new Phaser.Game(config);
