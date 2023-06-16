@@ -5,16 +5,43 @@ import { shuffle } from "./utils";
 class Ball {
   private radius: number = 25;
   private num: number = 0;
+  private ballRef: Phaser.GameObjects.Arc;
+  private txtRef: Phaser.GameObjects.Text;
 
-  constructor(private weight: number) {
+  private startX: number;
+  private startY: number;
+
+  constructor(private scene: Phaser.Scene, private weight: number) {
   }
 
-  create(scene: Phaser.Scene, x: number, y: number, num: number) {
+  create(x: number, y: number, num: number): void {
+    this.startX = x;
+    this.startY = y;
+
     this.num = num;
-    scene.add.circle(x, y, this.radius, Colors.a);
-    scene.add.text(x, y, `${this.num}`, { color: Colors.toString(Colors.white), fontSize: 14, fontStyle: 'bold' }).setOrigin(0.5);
-    console.log(Colors.white);
-    console.log(Colors.toString(Colors.white));
+
+    this.ballRef = this.scene.add.circle(x, y, this.radius, Colors.a)
+      .setInteractive()
+      .setData('ball', this);
+
+    this.txtRef = this.scene.add.text(x, y, `${this.num}`, {
+      color: Colors.toString(Colors.white),
+      fontSize: 14,
+      fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    this.scene.input.setDraggable(this.ballRef);
+  }
+
+  updatePos(x: number, y: number): void {
+    this.ballRef.x = x;
+    this.ballRef.y = y;
+    this.txtRef.x = x;
+    this.txtRef.y = y;
+  }
+
+  resetPos(): void {
+    this.updatePos(this.startX, this.startY);
   }
 }
 
@@ -32,6 +59,7 @@ class PlayScene extends Phaser.Scene {
   create(): void {
     this.createScale();
     this.createBalls();
+    this.createEventHandlers();
   }
 
   createScale(): void {
@@ -55,9 +83,9 @@ class PlayScene extends Phaser.Scene {
   }
 
   createBalls(): void {
-    this.balls.push(new Ball(Math.random() - 0.5));
+    this.balls.push(new Ball(this, Math.random() - 0.5));
     for (let i = 0; i < 11; i++) {
-      this.balls.push(new Ball(0));
+      this.balls.push(new Ball(this, 0));
     }
     shuffle(this.balls);
 
@@ -65,8 +93,24 @@ class PlayScene extends Phaser.Scene {
     this.balls.forEach((ball, idx) => {
       const x = startX + 55 * (idx + 1);
       const y = 55;
-      ball.create(this, x, y, idx + 1);
+      ball.create(x, y, idx + 1);
     });
+  }
+
+  createEventHandlers(): void {
+    this.input.on('drag', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
+      const ball = obj.getData('ball') as Ball | undefined;
+      if (ball) {
+        ball.updatePos(dragX, dragY);
+      }
+    }, this);
+
+    this.input.on('dragend', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
+      const ball = obj.getData('ball') as Ball | undefined;
+      if (ball) {
+        ball.resetPos();
+      }
+    }, this);
   }
 
   update(time: number, delta: number): void {
