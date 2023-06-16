@@ -46,8 +46,11 @@ class Ball {
 }
 
 class PlayScene extends Phaser.Scene {
-  private line: Phaser.GameObjects.Line;
   private balls: Ball[] = [];
+
+  private line: Phaser.GameObjects.Line;
+  private dropArea1: Phaser.GameObjects.Rectangle;
+  private dropArea2: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super('PlayScene');
@@ -80,6 +83,14 @@ class PlayScene extends Phaser.Scene {
       size * 40, 0,
       Colors.b,
     );
+
+    this.dropArea1 = this.add.rectangle(screenCenter[0] - 23, screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
+      .setOrigin(1)
+      .setVisible(false);
+
+    this.dropArea2 = this.add.rectangle(screenCenter[0] - 7, screenCenter[1] - 3, size * 40 / 2, size * 40 / 4, Colors.d)
+      .setOrigin(0, 1)
+      .setVisible(false);
   }
 
   createBalls(): void {
@@ -102,14 +113,24 @@ class PlayScene extends Phaser.Scene {
       const ball = obj.getData('ball') as Ball | undefined;
       if (ball) {
         ball.updatePos(dragX, dragY);
+
+        this.dropArea1.setVisible(this.dropArea1.getBounds().contains(dragX, dragY));
+        this.dropArea2.setVisible(this.dropArea2.getBounds().contains(dragX, dragY));
       }
     }, this);
 
     this.input.on('dragend', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
       const ball = obj.getData('ball') as Ball | undefined;
       if (ball) {
-        ball.resetPos();
+        if (this.dropArea1.getBounds().contains(pointer.x, pointer.y)) {
+        } else if (this.dropArea2.getBounds().contains(pointer.x, pointer.y)) {
+        } else {
+          ball.resetPos();
+        }
       }
+
+      this.dropArea1.setVisible(false);
+      this.dropArea2.setVisible(false);
     }, this);
   }
 
