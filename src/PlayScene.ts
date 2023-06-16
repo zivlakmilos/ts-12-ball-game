@@ -52,6 +52,9 @@ class PlayScene extends Phaser.Scene {
   private dropArea1: Phaser.GameObjects.Rectangle;
   private dropArea2: Phaser.GameObjects.Rectangle;
 
+  private btnWeight: Phaser.GameObjects.Rectangle;
+  private btnReset: Phaser.GameObjects.Rectangle;
+
   constructor() {
     super('PlayScene');
   }
@@ -62,11 +65,12 @@ class PlayScene extends Phaser.Scene {
   create(): void {
     this.createScale();
     this.createBalls();
+    this.createButtons();
     this.createEventHandlers();
   }
 
   createScale(): void {
-    const screenCenter = [WIDTH / 2, HEIGHT / 2];
+    const screenCenter = [WIDTH / 2, HEIGHT * 2 / 3];
     const size = 20;
 
     this.add.triangle(
@@ -108,6 +112,46 @@ class PlayScene extends Phaser.Scene {
     });
   }
 
+  createButtons(): void {
+    const screenCenter = [WIDTH / 2, HEIGHT * 5 / 6];
+
+    let btnCenter;
+
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontStyle: 'bold',
+      fontSize: 18,
+      color: Colors.toString(Colors.white),
+    }
+
+    this.btnWeight = this.add.rectangle(screenCenter[0] - 3, screenCenter[1], 100, 50, Colors.a)
+      .setOrigin(1, 0)
+      .setInteractive();
+    btnCenter = this.btnWeight.getCenter();
+    this.add.text(btnCenter.x, btnCenter.y, 'Weight', textStyle)
+      .setOrigin(0.5);
+
+    this.btnReset = this.add.rectangle(screenCenter[0] + 3, screenCenter[1], 100, 50, Colors.a)
+      .setOrigin(0, 0)
+      .setInteractive();
+    btnCenter = this.btnReset.getCenter();
+    this.add.text(btnCenter.x, btnCenter.y, 'Reset', textStyle)
+      .setOrigin(0.5);
+
+    this.btnWeight.on('pointerover', () => {
+      this.btnWeight.setFillStyle(Colors.b);
+    });
+    this.btnWeight.on('pointerout', () => {
+      this.btnWeight.setFillStyle(Colors.a);
+    });
+
+    this.btnReset.on('pointerover', () => {
+      this.btnReset.setFillStyle(Colors.b);
+    });
+    this.btnReset.on('pointerout', () => {
+      this.btnReset.setFillStyle(Colors.a);
+    });
+  }
+
   createEventHandlers(): void {
     this.input.on('drag', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
       const ball = obj.getData('ball') as Ball | undefined;
@@ -132,6 +176,14 @@ class PlayScene extends Phaser.Scene {
       this.dropArea1.setVisible(false);
       this.dropArea2.setVisible(false);
     }, this);
+
+    this.btnWeight.on('pointerup', () => {
+      console.log('TODO: Implement weight');
+    });
+
+    this.btnReset.on('pointerup', () => {
+      console.log('TODO: Implement reset');
+    });
   }
 
   update(time: number, delta: number): void {
