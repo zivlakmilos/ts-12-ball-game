@@ -117,9 +117,9 @@ class PlayScene extends Phaser.Scene {
   }
 
   createBalls(): void {
-    this.balls.push(new Ball(this, Math.random() - 0.5));
+    this.balls.push(new Ball(this, Math.random() + 0.5));
     for (let i = 0; i < 11; i++) {
-      this.balls.push(new Ball(this, 0));
+      this.balls.push(new Ball(this, 1));
     }
     shuffle(this.balls);
 
