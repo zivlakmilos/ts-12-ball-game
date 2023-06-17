@@ -44,6 +44,10 @@ class Ball {
     this.updatePos(this.startX, this.startY);
   }
 
+  getPos() {
+    return new Phaser.Math.Vector2(this.ballRef.x, this.ballRef.y);
+  }
+
   getNumber(): number {
     return this.num;
   }
@@ -199,28 +203,87 @@ class PlayScene extends Phaser.Scene {
     }, this);
 
     this.btnWeight.on('pointerup', () => {
+      const totalLeft = this.leftBalls.reduce((acc, curr) => acc += curr.getWeight(), 0);
+      const totalRight = this.rightBalls.reduce((acc, curr) => acc += curr.getWeight(), 0);
+      console.log(totalLeft, totalRight);
+
       console.log('TODO: Implement weight');
-    });
+
+      if (totalLeft > totalRight) {
+        this.line.setAngle(-15);
+        this.dropArea1.setAngle(-15);
+        this.dropArea2.setAngle(-15);
+        this.repositionBalls(-15);
+      } else if (totalLeft < totalRight) {
+        this.line.setAngle(15);
+        this.dropArea1.setAngle(15);
+        this.dropArea2.setAngle(15);
+        this.repositionBalls(15);
+      }
+    }, this);
 
     this.btnReset.on('pointerup', () => {
       console.log('TODO: Implement reset');
-    });
+    }, this);
   }
 
-  repositionBalls(): void {
-    let bounds = this.dropArea1.getBounds();
+  repositionBalls(angle: number = 0): void {
+    const bounds = this.line.getBounds();
 
+    let firstBall: Ball | undefined = undefined;
     this.leftBalls.forEach((ball, idx) => {
-      const x = bounds.left + ball.getSize() + idx * ball.getSize() * 2;
-      const y = bounds.bottom - ball.getSize();
+      if (idx === 0) {
+        let distX = ball.getSize() + 3;
+        let distY = ball.getSize() + 3;
+
+        if (angle < 0) {
+          distY += 10;
+          distX -= 3;
+        } else if (angle > 0) {
+          distY -= 7;
+          distX += 7;
+        }
+
+        const x = bounds.left + distX;
+        const y = (angle < 0 ? bounds.bottom : bounds.top) - distY;
+        ball.updatePos(x, y);
+        firstBall = ball;
+        return;
+      }
+      const distX = (idx * ball.getSize() * 2) * Math.cos(angle * Math.PI / 180);
+      const distY = (idx * ball.getSize() * 2) * Math.sin(angle * Math.PI / 180);
+
+      const x = firstBall.getPos().x + distX;
+      const y = firstBall.getPos().y + distY;
+
       ball.updatePos(x, y);
     });
 
-
-    bounds = this.dropArea2.getBounds();
     this.rightBalls.forEach((ball, idx) => {
-      const x = bounds.right - ball.getSize() - idx * ball.getSize() * 2;
-      const y = bounds.bottom - ball.getSize();
+      if (idx === 0) {
+        let distX = ball.getSize() + 3;
+        let distY = ball.getSize() + 3;
+
+        if (angle < 0) {
+          distY -= 7;
+          distX += 10;
+        } else if (angle > 0) {
+          distY += 10;
+          distX -= 3;
+        }
+
+        const x = bounds.right - distX;
+        const y = (angle < 0 ? bounds.top : bounds.bottom) - distY;
+        ball.updatePos(x, y);
+        firstBall = ball;
+        return;
+      }
+      const distX = (idx * ball.getSize() * 2) * Math.cos(-angle * Math.PI / 180);
+      const distY = (idx * ball.getSize() * 2) * Math.sin(-angle * Math.PI / 180);
+
+      const x = firstBall.getPos().x - distX;
+      const y = firstBall.getPos().y + distY;
+
       ball.updatePos(x, y);
     });
   }
