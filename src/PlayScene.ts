@@ -72,7 +72,11 @@ class PlayScene extends Phaser.Scene {
   private dropArea2: Phaser.GameObjects.Rectangle;
 
   private btnWeight: Phaser.GameObjects.Rectangle;
+  private txtWeight: Phaser.GameObjects.Text;
   private btnReset: Phaser.GameObjects.Rectangle;
+
+  private measurementsLeft: number;
+  private txtMeasurementsLeft: Phaser.GameObjects.Text;
 
   constructor() {
     super('PlayScene');
@@ -85,6 +89,7 @@ class PlayScene extends Phaser.Scene {
     this.createScale();
     this.createBalls();
     this.createButtons();
+    this.createMeasurementText();
     this.createEventHandlers();
   }
 
@@ -117,6 +122,10 @@ class PlayScene extends Phaser.Scene {
   }
 
   createBalls(): void {
+    this.balls = [];
+    this.leftBalls = [];
+    this.rightBalls = [];
+
     this.balls.push(new Ball(this, Math.random() + 0.5));
     for (let i = 0; i < 11; i++) {
       this.balls.push(new Ball(this, 1));
@@ -146,7 +155,7 @@ class PlayScene extends Phaser.Scene {
       .setOrigin(1, 0)
       .setInteractive();
     btnCenter = this.btnWeight.getCenter();
-    this.add.text(btnCenter.x, btnCenter.y, 'Weight', textStyle)
+    this.txtWeight = this.add.text(btnCenter.x, btnCenter.y, 'Weight', textStyle)
       .setOrigin(0.5);
 
     this.btnReset = this.add.rectangle(screenCenter[0] + 3, screenCenter[1], 100, 50, Colors.a)
@@ -171,10 +180,21 @@ class PlayScene extends Phaser.Scene {
     });
   }
 
+  createMeasurementText() {
+    const screenCenter = [WIDTH / 2, HEIGHT / 2];
+
+    this.measurementsLeft = 3;
+    this.txtMeasurementsLeft = this.add.text(screenCenter[0], HEIGHT - 50, `${this.measurementsLeft} measurements left`, {
+      fontStyle: 'bold',
+      fontSize: 18,
+      color: Colors.toString(Colors.a),
+    }).setOrigin(0.5);
+  }
+
   createEventHandlers(): void {
     this.input.on('drag', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
       const ball = obj.getData('ball') as Ball | undefined;
-      if (ball) {
+      if (ball && this.txtWeight.text === 'Weight') {
         ball.updatePos(dragX, dragY);
 
         this.dropArea1.setVisible(this.dropArea1.getBounds().contains(dragX, dragY));
@@ -183,6 +203,10 @@ class PlayScene extends Phaser.Scene {
     }, this);
 
     this.input.on('dragend', (pointer: any, obj: Phaser.GameObjects.GameObject, dragX: number, dragY: number) => {
+      if (this.txtWeight.text !== 'Weight') {
+        return;
+      }
+
       const ball = obj.getData('ball') as Ball | undefined;
       if (ball) {
         this.rightBalls = this.rightBalls.filter(el => el.getNumber() !== ball.getNumber());
@@ -194,20 +218,42 @@ class PlayScene extends Phaser.Scene {
         } else {
           ball.resetPos();
         }
-
-        this.repositionBalls();
       }
+
+      this.repositionBalls();
 
       this.dropArea1.setVisible(false);
       this.dropArea2.setVisible(false);
     }, this);
 
     this.btnWeight.on('pointerup', () => {
+      if (this.txtWeight.text === 'Next') {
+        if (this.measurementsLeft <= 0) {
+          console.log('TODO: Choose Ball');
+          console.log(this.balls.find(ball => ball.getWeight() !== 1).getNumber());
+          return;
+        }
+
+
+        this.txtWeight.setText('Weight');
+        this.leftBalls = [];
+        this.rightBalls = [];
+        this.balls.forEach(ball => {
+          ball.resetPos();
+        });
+        this.line.setAngle(0);
+        this.dropArea1.setAngle(0);
+        this.dropArea2.setAngle(0);
+        this.repositionBalls();
+        return;
+      }
+
+      this.measurementsLeft--;
+      this.txtMeasurementsLeft.setText(`${this.measurementsLeft} measurements left`);
+      this.txtWeight.setText('Next');
+
       const totalLeft = this.leftBalls.reduce((acc, curr) => acc += curr.getWeight(), 0);
       const totalRight = this.rightBalls.reduce((acc, curr) => acc += curr.getWeight(), 0);
-      console.log(totalLeft, totalRight);
-
-      console.log('TODO: Implement weight');
 
       if (totalLeft > totalRight) {
         this.line.setAngle(-15);
@@ -223,7 +269,7 @@ class PlayScene extends Phaser.Scene {
     }, this);
 
     this.btnReset.on('pointerup', () => {
-      console.log('TODO: Implement reset');
+      this.scene.restart();
     }, this);
   }
 
