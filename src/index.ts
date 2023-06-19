@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { WIDTH, HEIGHT, Colors } from "./constants";
 import PlayScene from "./PlayScene";
+import ChooseBallScene from "./ChooseBallScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -10,7 +11,7 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
   },
-  scene: [PlayScene],
+  scene: [PlayScene, ChooseBallScene],
 };
 
 new Phaser.Game(config);

@@ -1,65 +1,7 @@
 import Phaser from "phaser";
 import { WIDTH, HEIGHT, Colors } from "./constants";
 import { shuffle } from "./utils";
-
-class Ball {
-  private radius: number = 25;
-  private num: number = 0;
-  private ballRef: Phaser.GameObjects.Arc;
-  private txtRef: Phaser.GameObjects.Text;
-
-  private startX: number;
-  private startY: number;
-
-  constructor(private scene: Phaser.Scene, private weight: number) {
-  }
-
-  create(x: number, y: number, num: number): void {
-    this.startX = x;
-    this.startY = y;
-
-    this.num = num;
-
-    this.ballRef = this.scene.add.circle(x, y, this.radius, Colors.a)
-      .setInteractive()
-      .setData('ball', this);
-
-    this.txtRef = this.scene.add.text(x, y, `${this.num}`, {
-      color: Colors.toString(Colors.white),
-      fontSize: 14,
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-
-    this.scene.input.setDraggable(this.ballRef);
-  }
-
-  updatePos(x: number, y: number): void {
-    this.ballRef.x = x;
-    this.ballRef.y = y;
-    this.txtRef.x = x;
-    this.txtRef.y = y;
-  }
-
-  resetPos(): void {
-    this.updatePos(this.startX, this.startY);
-  }
-
-  getPos() {
-    return new Phaser.Math.Vector2(this.ballRef.x, this.ballRef.y);
-  }
-
-  getNumber(): number {
-    return this.num;
-  }
-
-  getWeight(): number {
-    return this.weight;
-  }
-
-  getSize(): number {
-    return this.radius;
-  }
-}
+import Ball from "./Ball";
 
 class PlayScene extends Phaser.Scene {
   private balls: Ball[] = [];
@@ -229,11 +171,11 @@ class PlayScene extends Phaser.Scene {
     this.btnWeight.on('pointerup', () => {
       if (this.txtWeight.text === 'Next') {
         if (this.measurementsLeft <= 0) {
-          console.log('TODO: Choose Ball');
-          console.log(this.balls.find(ball => ball.getWeight() !== 1).getNumber());
+          this.scene.start('ChooseBallScene', {
+            balls: this.balls,
+          })
           return;
         }
-
 
         this.txtWeight.setText('Weight');
         this.leftBalls = [];
