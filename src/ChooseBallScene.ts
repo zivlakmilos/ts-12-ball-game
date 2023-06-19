@@ -11,6 +11,7 @@ class ChooseBallScene extends Phaser.Scene {
   }
 
   init(data: any): void {
+    this.balls = [];
     const balls = data.balls as Ball[];
     balls.forEach(ball => {
       this.balls.push(new Ball(this, ball.getWeight()));
@@ -64,11 +65,15 @@ class ChooseBallScene extends Phaser.Scene {
       obj.forEach(el => {
         if (el.data.has('ball')) {
           const ball = el.data.get('ball') as Ball;
-          if (ball.getWeight() == 1) {
-            console.log('TODO: Game Over');
-          } else {
-            console.log('TODO: You Won');
+          const data = {
+            won: false,
           }
+
+          if (ball.getWeight() !== 1) {
+            data.won = true;
+          }
+
+          this.scene.start('GameOverScene', data);
         }
       });
     });
