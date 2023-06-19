@@ -123,10 +123,10 @@ class PlayScene extends Phaser.Scene {
   }
 
   createMeasurementText() {
-    const screenCenter = [WIDTH / 2, HEIGHT / 2];
+    const screenCenter = [WIDTH / 2, HEIGHT * 5 / 6];
 
     this.measurementsLeft = 3;
-    this.txtMeasurementsLeft = this.add.text(screenCenter[0], HEIGHT - 50, `${this.measurementsLeft} measurements left`, {
+    this.txtMeasurementsLeft = this.add.text(screenCenter[0], screenCenter[1] + 75, `${this.measurementsLeft} measurements left`, {
       fontStyle: 'bold',
       fontSize: 18,
       color: Colors.toString(Colors.a),
